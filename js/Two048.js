@@ -1,5 +1,5 @@
 function Two048(canvas, n) {
-    this.offset = scaleFactor * 15;
+    this.offset = scaleFactor * 10;
     this.n = n;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d", {alpha: false});
