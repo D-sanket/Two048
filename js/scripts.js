@@ -1,12 +1,34 @@
 var startX, startY, stopX, stopY;
 var minDelta = 10;
+var values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
 
 var game = new Two048(canvas, 4);
 
-canvas.onclick = function(){
-	if(game.isPaused){
-		game.start();
+function animate(func, frames){
+	var count = 0;
+
+	if(count < frames)
+		requestAnimationFrame(anim);
+
+	function anim(){
+		func();
+		count++;
+
+		if(count < frames)
+			requestAnimationFrame(anim);
 	}
+}
+
+
+
+function random(a, b){
+	return Math.floor(Math.random()*(b-a)) + a;
+}
+
+canvas.onclick = function(){
+	// if(game.isPaused){
+	// 	game.start();
+	// }
 };
 
 window.ontouchstart = function(e){
@@ -45,5 +67,20 @@ window.ontouchend = function(e){
 			game.moveDown();
 		else
 			game.moveUp();
+	}
+};
+
+window.onkeyup = function (e) {
+	if(e.key == "ArrowUp"){
+		game.moveUp();
+	}
+	else if(e.key == "ArrowRight"){
+		game.moveRight();
+	}
+	else if(e.key == "ArrowDown"){
+		game.moveDown();
+	}
+	else if(e.key == "ArrowLeft"){
+		game.moveLeft();
 	}
 };
