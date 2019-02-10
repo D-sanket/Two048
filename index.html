@@ -1,84 +1,26 @@
 <!DOCTYPE html>
 <html>
-  <head>
-	<meta name="viewport" content="width=device-width, user-scalable=false">
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=false">
     <link href="https://fonts.googleapis.com/css?family=Secular+One" rel="stylesheet">
-	<link href="css/styles.css" rel="stylesheet">
-  </head>
-  <body>
-	<div id="theGame">
-	<canvas id="theCanvas"></canvas>
-	
-	</div>
-	<div id="theLog">
-	</div>
-	<style>
-	  *{
-	    padding : 0;
-		margin: 0;
-		box-sizing: border-box;
-	  }
-	  
-	  canvas{
-	    border: 0px solid green;
-	  }
-	  
-	  body{
-	    
-	  }
-	  
-	  #theGame{
-	    padding-top: 3rem;
-	    display: flex;
-		justify-content: center;
-		background: white;
-		position: absolute;
-		width: 100%;
-		height: 100%;
-	  }
-	  
-	  #fullScreenBtn{
-	    position: absolute;
-		top: 0;
-	  }
-	  
-	</style>
-	<script>
-	  var canvas = document.getElementById("theCanvas");
-	  var ctx = canvas.getContext("2d");
-	  var canvasSize = parseInt(window.innerWidth*0.9);
-	  var scaleFactor = 3;
-	  var theLog = document.getElementById("theLog");
-	  
-	  canvas.style.height = canvasSize + "px";
-	  canvas.height = scaleFactor*canvasSize;
-      canvas.width = scaleFactor*canvasSize;
-      log("Testing..", "hello");
-	  
-function log(){
-    theLog.innerHTML = "";
-	for(var i=0; i<arguments.length; i++)
-        theLog.innerHTML += arguments[i]+" ";
-}
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div id="theGame">
+    <canvas id="theCanvas"></canvas>
 
-function openFullScreen(elem){
-  
- 	// if(elem.requestFullscreen){
-    	// elem.requestFullscreen();
-  	// }else if(elem.mozRequestFullScreen) {
-    	// elem.mozRequestFullScreen();
-  	// }else if(elem.webkitRequestFullscreen) {
-    	// elem.webkitRequestFullscreen();
-  	// }else if(elem.msRequestFullscreen) {
-    	// elem.msRequestFullscreen();
-  	// }
-	
-}
-</script>
-	
-	<script src="./js/Tile.js"></script>
-	<script src="./js/Two048.js"></script>
-    <script src="./js/scripts.js"></script>
-	
-  </body>
+</div>
+<div id="temp">
+
+</div>
+
+<div id="theBtn">
+    <a href="javascript: openFullScreen();">FullScreen</a>
+</div>
+
+<script src="./js/Tile.js"></script>
+<script src="./js/Two048.js"></script>
+<script src="./js/scripts.js"></script>
+
+</body>
 </html>		

@@ -2,7 +2,34 @@ var startX, startY, stopX, stopY;
 var minDelta = 10;
 var values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
 
+var canvas = document.getElementById("theCanvas");
+var ctx = canvas.getContext("2d");
+var canvasSize = parseInt(window.innerWidth * 0.9);
+var scaleFactor = 3;
+var theLog = document.getElementById("theLog");
+
+canvas.style.height = canvasSize + "px";
+canvas.height = scaleFactor * canvasSize;
+canvas.width = scaleFactor * canvasSize;
+
+
 var game = new Two048(canvas, 4);
+
+function openFullScreen() {
+	var elem = document.getElementById('theGame');
+	if (elem.requestFullscreen) {
+		elem.requestFullscreen();
+	} else if (elem.mozRequestFullScreen) {
+		elem.mozRequestFullScreen();
+	} else if (elem.webkitRequestFullscreen) {
+		elem.webkitRequestFullscreen();
+	} else if (elem.msRequestFullscreen) {
+		elem.msRequestFullscreen();
+	}
+
+}
+
+
 
 function animate(func, callback, duration){
 	var count = 0;
