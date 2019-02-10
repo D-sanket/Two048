@@ -8,6 +8,7 @@ function Tile(size, x, y, margin, value){
     // this.offset = 5*scaleFactor;
     this.fillStyle = "white";
     this.hasMoved = false;
+    this.isMixed = false;
     if(value)
         this.value = value;
     else
