@@ -4,18 +4,20 @@ var values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
 
 var game = new Two048(canvas, 4);
 
-function animate(func, frames){
+function animate(func, callback, duration){
 	var count = 0;
 
-	if(count < frames)
+	if(count < duration)
 		requestAnimationFrame(anim);
 
 	function anim(){
 		func();
 		count++;
 
-		if(count < frames)
+		if(count < duration)
 			requestAnimationFrame(anim);
+		else
+		    callback();
 	}
 }
 
