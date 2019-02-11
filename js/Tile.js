@@ -6,9 +6,10 @@ function Tile(size, x, y, margin, value){
     this.offY = 0;
     this.margin = margin;
     // this.offset = 5*scaleFactor;
-    this.fillStyle = "white";
+    this.fillStyle = "#bcaaa4";
     this.hasMoved = false;
     this.isMixed = false;
+    this.toBeDrawn = true;
     if(value)
         this.value = value;
     else
@@ -62,6 +63,8 @@ Tile.prototype.setColor = function(){
 };
 
 Tile.prototype.draw = function(ctx){
+    if(this.hasMoved)
+        return;
     this.setColor();
 
     ctx.save();

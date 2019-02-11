@@ -61,12 +61,16 @@ canvas.onclick = function(){
 };
 
 window.ontouchstart = function(e){
+	if(!game.isReady)
+		return;
 	var touch = e.targetTouches[0];
 	startX = parseInt(touch.clientX);
 	startY = parseInt(touch.clientY);
 };
 
 window.ontouchend = function(e){
+    if(!game.isReady)
+        return;
 	var touch = e.changedTouches[0];
 	stopX = parseInt(touch.clientX);
 	stopY = parseInt(touch.clientY);
@@ -100,6 +104,8 @@ window.ontouchend = function(e){
 };
 
 window.onkeyup = function (e) {
+    if(!game.isReady)
+        return;
 	if(e.key == "ArrowUp"){
 		game.moveUp();
 	}
