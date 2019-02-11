@@ -23,6 +23,16 @@ canvas{
   height: 100%;
 }
 
+#temp{
+  position: absolute;
+  bottom: 6rem;
+  font-size: 1rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 #theBtn{
   position: absolute;
   bottom: 2rem;

@@ -103,6 +103,11 @@ $(window).on('touchend', function(e){
 	}
 });
 
+window.addEventListener('devicemotion', function (ev) {
+	var temp = document.getElementById("temp");
+	temp.innerHTML = JSON.stringify(ev.acceleration);
+});
+
 window.onkeyup = function (e) {
     if(!game.isReady)
         return;
