@@ -5,7 +5,7 @@ function Two048(canvas, n) {
     this.ctx = canvas.getContext("2d", {alpha: false});
     this.size = canvas.width - 2 * this.offset;
     this.isPaused = true;
-    this.slideDuration = 20;
+    this.slideDuration = 10;
     this.isReady = true;
     this.tiles = [];
 
@@ -24,7 +24,7 @@ function Two048(canvas, n) {
 
     this.draw();
 
-    this.drawBlankTileAt(0, 0)
+    this.drawBlankTileAt(0, 0);
 }
 
 Two048.prototype.getFreeSpace = function(){

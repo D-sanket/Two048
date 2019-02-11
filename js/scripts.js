@@ -4,7 +4,9 @@ var values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
 
 var canvas = document.getElementById("theCanvas");
 var ctx = canvas.getContext("2d");
-var canvasSize = parseInt(window.innerWidth * 0.9);
+var w = parseInt(window.innerWidth * 0.9);
+var h = parseInt(window.innerHeight * 0.9);
+var canvasSize = w > h ? h : w;
 var scaleFactor = 3;
 var theLog = document.getElementById("theLog");
 
