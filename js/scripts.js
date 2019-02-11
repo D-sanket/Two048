@@ -60,15 +60,15 @@ canvas.onclick = function(){
 	// }
 };
 
-window.ontouchstart = function(e){
+$(window).on('touchstart', function(e){
 	if(!game.isReady)
 		return;
 	var touch = e.targetTouches[0];
 	startX = parseInt(touch.clientX);
 	startY = parseInt(touch.clientY);
-};
+});
 
-window.ontouchend = function(e){
+$(window).on('touchend', function(e){
     if(!game.isReady)
         return;
 	var touch = e.changedTouches[0];
@@ -101,7 +101,7 @@ window.ontouchend = function(e){
 		else
 			game.moveUp();
 	}
-};
+});
 
 window.onkeyup = function (e) {
     if(!game.isReady)
