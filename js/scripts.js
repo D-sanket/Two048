@@ -60,52 +60,44 @@ canvas.onclick = function(){
 	// }
 };
 
-$(window).on('touchstart', function(e){
-	if(!game.isReady)
-		return;
-	var touch = e.targetTouches[0];
-	startX = parseInt(touch.clientX);
-	startY = parseInt(touch.clientY);
+var touched = false;
+var count = 0;
+window.onmousedown = function(){
+	touched = true;
+};
+
+window.onmouseup = function(){
+	touched = false;
+	count = 0;
+};
+
+var myElement = document.getElementById("theGame");
+
+var mc = new Hammer(myElement);
+
+//enable all directions
+mc.get('swipe').set({
+  direction: Hammer.DIRECTION_ALL,
+  threshold: 1, 
+  velocity:0.1
 });
 
-$(window).on('touchend', function(e){
-    if(!game.isReady)
-        return;
-	var touch = e.changedTouches[0];
-	stopX = parseInt(touch.clientX);
-	stopY = parseInt(touch.clientY);
-	
-	if(Math.abs(stopX-startX) > minDelta && Math.abs(stopY-startY) > minDelta){
-		if(Math.abs(stopX-startX) > Math.abs(stopY-startY)){
-			if(stopX-startX > 0)
-				game.moveRight();
-			else
-				game.moveLeft();
-		}
-		else{
-			if(stopY-startY > 0)
-				game.moveDown();
-			else
-				game.moveUp();
-		}
-	}
-	else if(Math.abs(stopX-startX) > minDelta && Math.abs(stopX-startX) < minDelta){
-		if(stopX-startX > 0)
-			game.moveRight();
-		else
-			game.moveLeft();
-	}
-	else if(Math.abs(stopX-startX) < minDelta && Math.abs(stopX-startX) > minDelta){
-		if(stopY-startY > 0)
-			game.moveDown();
-		else
+// listen to events...
+mc.on("swipeup swipedown swipeleft swiperight tap press", function(ev) {
+  	switch(ev.type){
+		case "swipeup":
 			game.moveUp();
+			break;
+		case "swipedown":
+			game.moveDown();
+			break;
+		case "swipeleft":
+			game.moveLeft();
+			break;
+		case "swiperight":
+			game.moveRight();
+			break;
 	}
-});
-
-window.addEventListener('devicemotion', function (ev) {
-	var temp = document.getElementById("temp");
-	temp.innerHTML = JSON.stringify(ev.acceleration);
 });
 
 window.onkeyup = function (e) {
