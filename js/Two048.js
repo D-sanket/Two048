@@ -198,7 +198,7 @@ Two048.prototype.drawBlankTileAt = function (x, y, value) {
     tile.draw(this.ctx);
 };
 
-Two048.prototype.animateTiles = function (changedTiles, direction, tile) {
+Two048.prototype.animateTiles = function (changedTiles, direction, _tile) {
     var self = this;
     var tiles = [];
     this.pause();
@@ -249,12 +249,12 @@ Two048.prototype.animateTiles = function (changedTiles, direction, tile) {
             tile.draw(self.ctx);
         }
     }, function () {
-        if (changedTiles.length > 0 && !tile){
+        if (changedTiles.length > 0 && !_tile){
             var newTile = self.addTile();
             self.toFirebase(direction, newTile);
         }
-        else if(tile){
-            self.tiles[tile.x][tile.y] = new Tile(self.tileSize, tile.x, tile.y, self.offset, tile.value);
+        else if(_tile){
+            self.tiles[_tile.x][_tile.y] = new Tile(self.tileSize, _tile.x, _tile.y, self.offset, _tile.value);
         }
 
         self.setHasMoved(false);
