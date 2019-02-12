@@ -1,4 +1,4 @@
-function Two048(canvas, n) {
+function Two048(canvas, n, db) {
     this.offset = scaleFactor * 10;
     this.n = n;
     this.canvas = canvas;
@@ -8,7 +8,9 @@ function Two048(canvas, n) {
     this.slideDuration = 10;
     this.isReady = true;
     this.tiles = [];
-
+    this.db = db;
+    this.id = "";
+    this.bgTask = false;
     for (var i = 0; i < n; i++) {
         var temp = [];
         for (var j = 0; j < n; j++) {
@@ -25,13 +27,97 @@ function Two048(canvas, n) {
     this.draw();
 
     this.drawBlankTileAt(0, 0);
+    this.myMove = true;
 }
 
-Two048.prototype.getFreeSpace = function(){
+Two048.prototype.listenForMoves = function(){
+    console.log("Listening..");
+    if (this.id == "")
+        return;
+    var self = this;
+    console.log("..Listening..");
+    db.collection("moves").doc(this.id)
+        .onSnapshot(function(doc) {
+            if(!self.myMove){
+                var move = doc.data().move;
+
+                switch(move){
+                    case 1:
+                        self.moveUp();
+                        break;
+                    case 2:
+                        self.moveRight();
+                        break;
+                    case 3:
+                        self.moveDown();
+                        break;
+                    case 4:
+                        self.moveLeft();
+                        break;
+                }
+            }
+            self.myMove = false;
+        });
+};
+
+Two048.prototype.toFirebase = function (direction) {
+    console.log("Moving..", direction);
+    if (this.id == "")
+        return;
+    this.bgTask = true;
+    console.log("...");
+    var self = this;
+    var gameRef = this.db.collection('games').doc(self.id);
+
+    gameRef.get()
+        .then(doc => {
+            var moveRef = self.db.collection('moves').doc(self.id);
+            moveRef.set({
+                move: direction
+            }).then(() => {
+                console.log('Moved..');
+                self.bgTask = false;
+                self.resume();
+            })
+            .catch(err => {
+                self.bgTask = false;
+                self.resume();
+            })
+        })
+        .catch(err => {
+            console.error('Error getting document', err);
+            self.bgTask = false;
+            self.resume();
+        });
+};
+
+Two048.prototype.pause = function () {
+    this.isReady = false;
+};
+
+Two048.prototype.resume = function () {
+    this.isReady = true;
+};
+
+Two048.prototype.setTiles = function (tiles) {
+    this.tiles = [];
+    for (var i = 0; i < this.n; i++) {
+        var temp = [];
+        for (var j = 0; j < this.n; j++) {
+            if (!tiles[i][j])
+                temp.push(null);
+            else
+                temp.push(new Tile(this.tileSize, tiles[i][j].x, tiles[i][j].y, this.offset, tiles[i][j].value));
+        }
+        this.tiles.push(temp);
+    }
+};
+
+Two048.prototype.getFreeSpace = function () {
     var result = [];
     for (var i = 0; i < this.n; i++) {
         for (var j = 0; j < this.n; j++) {
-            if(!this.tiles[i][j]){
+            if (!this.tiles[i][j]) {
                 result.push({
                     x: i, y: j
                 });
@@ -73,10 +159,10 @@ Two048.prototype.draw = function (noTiles) {
 
 Two048.prototype.addTile = function () {
     var freeSpace = this.getFreeSpace();
-    if(freeSpace.length == 0){
+    if (freeSpace.length == 0) {
         log("Game over!");
     }
-    else{
+    else {
         var idx = random(0, freeSpace.length);
         var x = freeSpace[idx].x;
         var y = freeSpace[idx].y;
@@ -97,72 +183,74 @@ Two048.prototype.setHasMoved = function (value) {
     }
 };
 
-Two048.prototype.drawBlankTileAt = function(x, y, value){
+Two048.prototype.drawBlankTileAt = function (x, y, value) {
     var tile = new Tile(this.tileSize, x, y, this.offset);
     tile.value = value ? value : "";
     tile.draw(this.ctx);
 };
 
-Two048.prototype.animateTiles = function(changedTiles){
+Two048.prototype.animateTiles = function (changedTiles) {
     var self = this;
     var tiles = [];
-    this.isReady = false;
-    for(var i=0; i<changedTiles.length; i++){
+    this.pause();
+    for (var i = 0; i < changedTiles.length; i++) {
         var x = changedTiles[i].x;
         var y = changedTiles[i].y;
         var nx = changedTiles[i].nx;
         var ny = changedTiles[i].ny;
         var toBeDoubled = changedTiles[i].toBeDoubled;
         var oldTile = self.tiles[nx][ny];
-        var value = toBeDoubled ? oldTile.value/2 : oldTile.value;
+        var value = toBeDoubled ? oldTile.value / 2 : oldTile.value;
         var tile = new Tile(self.tileSize, x, y, self.offset, value);
         tiles.push(tile);
 
         // self.drawBlankTileAt(x, y);
     }
 
-    var delta = (this.tileSize + this.offset)/this.slideDuration;
+    var delta = (this.tileSize + this.offset) / this.slideDuration;
     animate(function () {
         self.draw();
-        for(var i=0; i<tiles.length; i++){
+        for (var i = 0; i < tiles.length; i++) {
             var x = changedTiles[i].x;
             var y = changedTiles[i].y;
             var nx = changedTiles[i].nx;
             var ny = changedTiles[i].ny;
             var toBeDoubled = changedTiles[i].toBeDoubled;
             var oldTile = self.tiles[nx][ny];
-            var value = toBeDoubled ? oldTile.value/2 : oldTile.value;
+            var value = toBeDoubled ? oldTile.value / 2 : oldTile.value;
             var tile = tiles[i];
 
-            if(x != nx){
-                if(x < nx){
-                    tile.plusX(delta*(nx-x));
+            if (x != nx) {
+                if (x < nx) {
+                    tile.plusX(delta * (nx - x));
                 }
-                else{
-                    tile.plusX(-delta*(x-nx));
+                else {
+                    tile.plusX(-delta * (x - nx));
                 }
             }
-            else if(y != ny){
-                if(y < ny){
-                    tile.plusY(delta*(ny-y));
+            else if (y != ny) {
+                if (y < ny) {
+                    tile.plusY(delta * (ny - y));
                 }
-                else{
-                    tile.plusY(-delta*(y-ny));
+                else {
+                    tile.plusY(-delta * (y - ny));
                 }
             }
 
             tile.draw(self.ctx);
         }
     }, function () {
-        if(changedTiles.length > 0)
+        if (changedTiles.length > 0)
             self.addTile();
         self.setHasMoved(false);
         self.draw();
-        self.isReady = true;
+        if(!self.bgTask)
+            self.resume();
     }, this.slideDuration);
 };
 
 Two048.prototype.moveLeft = function () {
+    this.toFirebase(4);
     var changedTiles = [];
     for (var x = 1; x < this.n; x++) {
         for (var y = 0; y < this.n; y++) {
@@ -188,12 +276,12 @@ Two048.prototype.moveLeft = function () {
                             changedTiles.push({
                                 x: x,
                                 y: y,
-                                nx: nx-1,
+                                nx: nx - 1,
                                 ny: y,
                                 toBeDoubled: true
                             });
                         }
-                        else{
+                        else {
                             this.tiles[nx][y] = new Tile(this.tileSize, nx, y, this.offset, value);
                             this.tiles[nx][y].hasMoved = true;
                             this.tiles[nx][y].toBeDrawn = false;
@@ -221,7 +309,7 @@ Two048.prototype.moveLeft = function () {
                             toBeDoubled: false
                         });
                     }
-                    else{
+                    else {
                         if (this.tiles[nx - 1][y].value == this.tiles[x][y].value && !this.tiles[nx - 1][y].isMixed) {
                             this.tiles[nx - 1][y] = new Tile(this.tileSize, nx - 1, y, this.offset, parseInt(value) * 2);
                             this.tiles[nx - 1][y].hasMoved = true;
@@ -232,7 +320,7 @@ Two048.prototype.moveLeft = function () {
                             changedTiles.push({
                                 x: x,
                                 y: y,
-                                nx: nx-1,
+                                nx: nx - 1,
                                 ny: y,
                                 toBeDoubled: true
                             });
@@ -245,13 +333,10 @@ Two048.prototype.moveLeft = function () {
     }
 
     this.animateTiles(changedTiles);
-
-    // this.setHasMoved(false);
-
-    console.log("Moving left..");
 };
 
 Two048.prototype.moveRight = function () {
+    this.toFirebase(2);
     var changedTiles = [];
     for (var x = this.n - 2; x >= 0; x--) {
         for (var y = 0; y < this.n; y++) {
@@ -276,12 +361,12 @@ Two048.prototype.moveRight = function () {
                             changedTiles.push({
                                 x: x,
                                 y: y,
-                                nx: nx+1,
+                                nx: nx + 1,
                                 ny: y,
                                 toBeDoubled: true
                             });
                         }
-                        else{
+                        else {
                             this.tiles[nx][y] = new Tile(this.tileSize, nx, y, this.offset, value);
                             this.tiles[nx][y].hasMoved = true;
                             this.tiles[nx][y].isMixed = true;
@@ -310,7 +395,7 @@ Two048.prototype.moveRight = function () {
                             toBeDoubled: false
                         });
                     }
-                    else{
+                    else {
                         if (this.tiles[nx + 1][y].value == this.tiles[x][y].value && !this.tiles[nx + 1][y].isMixed) {
                             this.tiles[nx + 1][y] = new Tile(this.tileSize, nx + 1, y, this.offset, parseInt(value) * 2);
                             this.tiles[nx + 1][y].hasMoved = true;
@@ -320,7 +405,7 @@ Two048.prototype.moveRight = function () {
                             changedTiles.push({
                                 x: x,
                                 y: y,
-                                nx: nx+1,
+                                nx: nx + 1,
                                 ny: y,
                                 toBeDoubled: true
                             });
@@ -332,10 +417,10 @@ Two048.prototype.moveRight = function () {
         }
     }
     this.animateTiles(changedTiles);
-    console.log("Moving right..");
 };
 
 Two048.prototype.moveUp = function () {
+    this.toFirebase(1);
     var changedTiles = [];
     for (var y = 1; y < this.n; y++) {
         for (var x = 0; x < this.n; x++) {
@@ -362,11 +447,11 @@ Two048.prototype.moveUp = function () {
                                 x: x,
                                 y: y,
                                 nx: x,
-                                ny: ny-1,
+                                ny: ny - 1,
                                 toBeDoubled: true
                             });
                         }
-                        else{
+                        else {
                             this.tiles[x][ny] = new Tile(this.tileSize, x, ny, this.offset, value);
                             this.tiles[x][ny].hasMoved = true;
                             this.tiles[x][ny].toBeDrawn = false;
@@ -392,7 +477,7 @@ Two048.prototype.moveUp = function () {
                             toBeDoubled: false
                         });
                     }
-                    else{
+                    else {
                         if (this.tiles[x][ny - 1].value == this.tiles[x][y].value && !this.tiles[x][ny - 1].isMixed) {
                             this.tiles[x][ny - 1] = new Tile(this.tileSize, x, ny - 1, this.offset, parseInt(value) * 2);
                             this.tiles[x][ny - 1].hasMoved = true;
@@ -403,7 +488,7 @@ Two048.prototype.moveUp = function () {
                                 x: x,
                                 y: y,
                                 nx: x,
-                                ny: ny-1,
+                                ny: ny - 1,
                                 toBeDoubled: true
                             });
                         }
@@ -413,10 +498,10 @@ Two048.prototype.moveUp = function () {
         }
     }
     this.animateTiles(changedTiles);
-    console.log("Moving up..");
 };
 
 Two048.prototype.moveDown = function () {
+    this.toFirebase(3);
     var changedTiles = [];
     for (var y = this.n - 2; y >= 0; y--) {
         for (var x = 0; x < this.n; x++) {
@@ -443,11 +528,11 @@ Two048.prototype.moveDown = function () {
                                 x: x,
                                 y: y,
                                 nx: x,
-                                ny: ny+1,
+                                ny: ny + 1,
                                 toBeDoubled: true
                             });
                         }
-                        else{
+                        else {
                             this.tiles[x][ny] = new Tile(this.tileSize, x, ny, this.offset, value);
                             this.tiles[x][ny].hasMoved = true;
                             this.tiles[x][ny].toBeDrawn = false;
@@ -473,7 +558,7 @@ Two048.prototype.moveDown = function () {
                             toBeDoubled: false
                         });
                     }
-                    else{
+                    else {
                         if (this.tiles[x][ny + 1].value == this.tiles[x][y].value && !this.tiles[x][ny + 1].isMixed) {
                             this.tiles[x][ny + 1] = new Tile(this.tileSize, x, ny + 1, this.offset, parseInt(value) * 2);
                             this.tiles[x][ny + 1].hasMoved = true;
@@ -484,7 +569,7 @@ Two048.prototype.moveDown = function () {
                                 x: x,
                                 y: y,
                                 nx: x,
-                                ny: ny+1,
+                                ny: ny + 1,
                                 toBeDoubled: true
                             });
                         }
@@ -494,7 +579,5 @@ Two048.prototype.moveDown = function () {
         }
     }
     this.animateTiles(changedTiles);
-
-    console.log("Moving down..");
 };
 

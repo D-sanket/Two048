@@ -1,0 +1,142 @@
+
+
+.header{
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.header .tileContainer{
+    display: flex;
+    justify-content: center;
+    background: #a1887f;
+    width: fit-content;
+    padding: 10px;
+    z-index: -2;
+}
+
+.header .tile{
+    height: 4rem;
+    width: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+    color: #263238;
+    margin-right: 10px;
+    animation-iteration-count: infinite;
+    /*animation-direction: alternate;*/
+}
+
+.header .tile:nth-of-type(4){
+    margin-right: 0;
+}
+
+.header .tile.two{
+    background: #fff3e0;
+    animation: twoAnim 6s infinite ease;
+}
+
+.header .tile.zero{
+    background: #bcaaa4;
+    z-index: -1;
+    animation: zeroAnim 6s infinite ease;
+}
+
+.header .tile.four{
+    background: #ffe0b2;
+    animation: fourAnim 6s infinite ease;
+}
+
+.header .tile.eight{
+    background: #ffab91;
+    animation: eightAnim 6s infinite ease;
+}
+
+
+@keyframes twoAnim {
+    0%{
+
+    }
+    16%{
+        transform: translateX(calc(100% + 10px));
+    }
+    32%{
+        transform: translateX(0);
+    }
+    48%{
+        transform: translateX(0);
+    }
+}
+
+@keyframes zeroAnim {
+    0%{
+
+    }
+    16%{
+        transform: translateX(calc(-100% - 10px));
+    }
+    32%{
+        transform: translateX(calc(200% + 20px));
+    }
+    48%{
+        transform: translateX(0);
+    }
+}
+
+@keyframes fourAnim {
+    0%{
+
+    }
+    16%{
+        transform: translateX(0);
+    }
+    32%{
+        transform: translateX(calc(-100% - 10px));
+    }
+    48%{
+        transform: translateX(0);
+    }
+}
+
+@keyframes eightAnim {
+    0%{
+
+    }
+    16%{
+        transform: translateX(0);
+    }
+    32%{
+        transform: translateX(calc(-100% - 10px));
+    }
+    48%{
+        transform: translateX(0);
+    }
+}
+
+body{
+    display: flex;
+    justify-content: center;
+}
+
+.container{
+    text-align: center;
+}
+
+.content * {
+
+}
+
+.content{
+    max-width: 400px;
+}
+
+#players #playerDiv{
+    text-align: left;
+}
+
+#playerDiv .user a{
+    float: right;
+}

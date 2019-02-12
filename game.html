@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, user-scalable=false">
     <link href="https://fonts.googleapis.com/css?family=Secular+One" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous"></script>
@@ -23,30 +23,41 @@
     </script>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <div class="tileContainer">
-            <div class="tile two">2</div>
-            <div class="tile zero"></div>
-            <div class="tile four">4</div>
-            <div class="tile eight">8</div>
-        </div>
+<div id="theGame">
+    <div id="canvasHolder">
+        <canvas id="theCanvas"></canvas>
     </div>
-    <div class="content">
-        <div id="username"></div>
-        <div id="ip"></div>
-
-        <div id="players">
-            <div class="title"><b>Online users</b></div>
-            <div id="playerDiv">
-
+    <div id="score">
+        <div id="playerOne">
+            <div class="playerName">
+                Player One
+            </div>
+            <div class="playerScore">
+                100
+            </div>
+        </div>
+        <div id="playerTwo">
+            <div class="playerName">
+                Player One
+            </div>
+            <div class="playerScore">
+                100
             </div>
         </div>
     </div>
 </div>
+<div id="temp">
 
-<script src="./js/index.js"></script>
+</div>
+
+<!--<div id="theBtn">-->
+<!--<a href="javascript: openFullScreen();">FullScreen</a>-->
+<!--</div>-->
+
+<script src="./js/hammer.js"></script>
+<script src="./js/Tile.js"></script>
+<script src="./js/Two048.js"></script>
+<script src="./js/scripts.js"></script>
 
 </body>
-</html>		
+</html>
