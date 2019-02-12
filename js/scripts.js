@@ -137,50 +137,52 @@ $(document).ready(function () {
 startGame();
 
 function startGame() {
-    var href = document.location.href;
-    var oppIp = href.substr(href.lastIndexOf("=") + 1);
-    game.isReady = false;
-    var ip = "127.0.0.2";
-    var gameRef = db.collection('games').doc(ip + "-" + oppIp);
+    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
+        var ip = data["geobytesremoteip"];
+        var href = document.location.href;
+        var oppIp = href.substr(href.lastIndexOf("=") + 1);
+        game.isReady = false;
+        var gameRef = db.collection('games').doc(ip + "-" + oppIp);
 
-    gameRef.get()
-        .then(doc => {
-            if (!doc.exists) {
-                gameRef = db.collection('games').doc(ip + "-" + oppIp);
-                gameRef.get()
-                    .then(doc => {
-                        if (!doc.exists) {
-                            gameRef = db.collection('games').doc(ip + "-" + oppIp);
-                            gameRef.set({
-                                playerOne: ip,
-                                playerTwo: oppIp,
-                                game: JSON.stringify(game)
-                            }).then(function () {
-                                console.log("Game created..");
-                                _startGame(game, ip + "-" + oppIp);
-                            }).catch(function (error) {
-                                console.error("Error adding document: ", error);
-                            });
-                        } else {
-                            console.log("Game fetched..");
-                            _startGame(JSON.parse(doc.data().game), doc.id);
-                        }
-                    })
-                    .catch(err => {
-                        console.log('Error getting document', err);
-                    });
-            } else {
-                console.log("Game fetched..");
-                _startGame(JSON.parse(doc.data().game), doc.id);
-            }
-        })
-        .catch(err => {
-            console.log('Error getting document', err);
-        });
+        gameRef.get()
+            .then(doc => {
+                if (!doc.exists) {
+                    gameRef = db.collection('games').doc(ip + "-" + oppIp);
+                    gameRef.get()
+                        .then(doc => {
+                            if (!doc.exists) {
+                                gameRef = db.collection('games').doc(ip + "-" + oppIp);
+                                gameRef.set({
+                                    playerOne: ip,
+                                    playerTwo: oppIp,
+                                    game: JSON.stringify(game.tiles)
+                                }).then(function () {
+                                    console.log("Game created..");
+                                    _startGame(game, ip + "-" + oppIp);
+                                }).catch(function (error) {
+                                    console.error("Error adding document: ", error);
+                                });
+                            } else {
+                                console.log("Game fetched..");
+                                _startGame(JSON.parse(doc.data().game), doc.id);
+                            }
+                        })
+                        .catch(err => {
+                            console.log('Error getting document', err);
+                        });
+                } else {
+                    console.log("Game fetched..");
+                    _startGame(JSON.parse(doc.data().game), doc.id);
+                }
+            })
+            .catch(err => {
+                console.log('Error getting document', err);
+            });
+    });
 
-    function _startGame(_game, id){
+    function _startGame(_game, id) {
         game.tiles = [];
-        game.setTiles(_game.tiles);
+        game.setTiles(_game);
         game.draw();
         game.id = id;
         game.isReady = true;
