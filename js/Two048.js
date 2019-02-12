@@ -40,19 +40,23 @@ Two048.prototype.listenForMoves = function(){
         .onSnapshot(function(doc) {
             if(!self.myMove){
                 var move = doc.data().move;
-
+                var tile = {
+                    x: doc.data().nx,
+                    y: doc.data().ny,
+                    value: doc.data().nval
+                };
                 switch(move){
                     case 1:
-                        self.moveUp();
+                        self.moveUp(tile);
                         break;
                     case 2:
-                        self.moveRight();
+                        self.moveRight(tile);
                         break;
                     case 3:
-                        self.moveDown();
+                        self.moveDown(tile);
                         break;
                     case 4:
-                        self.moveLeft();
+                        self.moveLeft(tile);
                         break;
                 }
             }
@@ -60,7 +64,7 @@ Two048.prototype.listenForMoves = function(){
         });
 };
 
-Two048.prototype.toFirebase = function (direction) {
+Two048.prototype.toFirebase = function (direction, newTile) {
     console.log("Moving..", direction);
     if (this.id == "")
         return;
@@ -73,7 +77,10 @@ Two048.prototype.toFirebase = function (direction) {
         .then(doc => {
             var moveRef = self.db.collection('moves').doc(self.id);
             moveRef.set({
-                move: direction
+                move: direction,
+                nx: newTile.x,
+                ny: newTile.y,
+                nval: newTile.value
             }).then(() => {
                 console.log('Moved..');
                 self.bgTask = false;
@@ -160,7 +167,7 @@ Two048.prototype.draw = function (noTiles) {
 Two048.prototype.addTile = function () {
     var freeSpace = this.getFreeSpace();
     if (freeSpace.length == 0) {
-        log("Game over!");
+        alert("Game over!");
     }
     else {
         var idx = random(0, freeSpace.length);
@@ -168,6 +175,8 @@ Two048.prototype.addTile = function () {
         var y = freeSpace[idx].y;
 
         this.tiles[x][y] = new Tile(this.tileSize, x, y, this.offset);
+
+        return this.tiles[x][y];
     }
 };
 
@@ -189,7 +198,7 @@ Two048.prototype.drawBlankTileAt = function (x, y, value) {
     tile.draw(this.ctx);
 };
 
-Two048.prototype.animateTiles = function (changedTiles) {
+Two048.prototype.animateTiles = function (changedTiles, direction, tile) {
     var self = this;
     var tiles = [];
     this.pause();
@@ -240,8 +249,14 @@ Two048.prototype.animateTiles = function (changedTiles) {
             tile.draw(self.ctx);
         }
     }, function () {
-        if (changedTiles.length > 0)
-            self.addTile();
+        if (changedTiles.length > 0 && !tile){
+            var newTile = self.addTile();
+            self.toFirebase(direction, newTile);
+        }
+        else if(tile){
+            self.tiles[tile.x][tile.y] = new Tile(self.tileSize, tile.x, tile.y, self.offset, tile.value);
+        }
+
         self.setHasMoved(false);
         self.draw();
         if(!self.bgTask)
@@ -249,8 +264,7 @@ Two048.prototype.animateTiles = function (changedTiles) {
     }, this.slideDuration);
 };
 
-Two048.prototype.moveLeft = function () {
-    this.toFirebase(4);
+Two048.prototype.moveLeft = function (_tile) {
     var changedTiles = [];
     for (var x = 1; x < this.n; x++) {
         for (var y = 0; y < this.n; y++) {
@@ -332,11 +346,10 @@ Two048.prototype.moveLeft = function () {
         }
     }
 
-    this.animateTiles(changedTiles);
+    this.animateTiles(changedTiles, 4, _tile);
 };
 
-Two048.prototype.moveRight = function () {
-    this.toFirebase(2);
+Two048.prototype.moveRight = function (_tile) {
     var changedTiles = [];
     for (var x = this.n - 2; x >= 0; x--) {
         for (var y = 0; y < this.n; y++) {
@@ -416,11 +429,10 @@ Two048.prototype.moveRight = function () {
             }
         }
     }
-    this.animateTiles(changedTiles);
+    this.animateTiles(changedTiles, 2, _tile);
 };
 
-Two048.prototype.moveUp = function () {
-    this.toFirebase(1);
+Two048.prototype.moveUp = function (_tile) {
     var changedTiles = [];
     for (var y = 1; y < this.n; y++) {
         for (var x = 0; x < this.n; x++) {
@@ -497,11 +509,10 @@ Two048.prototype.moveUp = function () {
             }
         }
     }
-    this.animateTiles(changedTiles);
+    this.animateTiles(changedTiles, 1, _tile);
 };
 
-Two048.prototype.moveDown = function () {
-    this.toFirebase(3);
+Two048.prototype.moveDown = function (_tile) {
     var changedTiles = [];
     for (var y = this.n - 2; y >= 0; y--) {
         for (var x = 0; x < this.n; x++) {
@@ -578,6 +589,6 @@ Two048.prototype.moveDown = function () {
             }
         }
     }
-    this.animateTiles(changedTiles);
+    this.animateTiles(changedTiles, 3, _tile);
 };
 
