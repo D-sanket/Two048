@@ -147,7 +147,7 @@ function startGame() {
         gameRef.get()
             .then(doc => {
                 if (!doc.exists) {
-                    gameRef = db.collection('games').doc(ip + "-" + oppIp);
+                    gameRef = db.collection('games').doc(oppIp + "-" + ip);
                     gameRef.get()
                         .then(doc => {
                             if (!doc.exists) {
@@ -158,7 +158,7 @@ function startGame() {
                                     game: JSON.stringify(game.tiles)
                                 }).then(function () {
                                     console.log("Game created..");
-                                    _startGame(game, ip + "-" + oppIp);
+                                    _startGame(game.tiles, ip + "-" + oppIp);
                                 }).catch(function (error) {
                                     console.error("Error adding document: ", error);
                                 });
