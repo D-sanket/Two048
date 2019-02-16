@@ -91,10 +91,10 @@ function move(e) {
 	if (!game.isReady)
 		return;
 
-	console.log(game.myTurn)
-
 	if(!game.myTurn)
 		return;
+
+    console.log(game.myTurn)
 
 	if (e.key == "ArrowUp") {
 		game.myMove = true;
@@ -124,8 +124,9 @@ $(document).ready(function () {
 startGame();
 
 function startGame() {
-    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-        var ip = data["geobytesremoteip"];
+    $.getJSON('https://json.geoiplookup.io/api?callback=?', function (data) {
+        var ip = data["ip"];
+        console.log(ip)
         var href = document.location.href;
         var oppIp = href.substr(href.lastIndexOf("=") + 1);
         game.isReady = false;
@@ -143,7 +144,7 @@ function startGame() {
                                     playerOne: ip,
                                     playerTwo: oppIp,
                                     game: JSON.stringify(game.tiles),
-									lastTurnBy: ip
+									lastTurnBy: ""
                                 }).then(function () {
                                     console.log("Game created..");
                                     _startGame(game.tiles, ip + "-" + oppIp, ip, true);
@@ -176,6 +177,7 @@ function startGame() {
         game.isReady = true;
         game.myIp = ip;
         game.myTurn = myTurn;
+        console.log(game.myTurn);
         game.listenForMoves();
     }
 }

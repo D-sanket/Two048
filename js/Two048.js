@@ -12,6 +12,7 @@ function Two048(canvas, n, db) {
     this.id = "";
     this.myIp = "";
     this.bgTask = false;
+    this.firstInit = true;
     for (var i = 0; i < n; i++) {
         var temp = [];
         for (var j = 0; j < n; j++) {
@@ -38,7 +39,12 @@ Two048.prototype.listenForMoves = function(){
 
     db.collection("moves").doc(this.id)
         .onSnapshot(function(doc) {
-            if(!self.myMove){
+            if(self.firstInit){
+                self.firstInit = false;
+                return;
+            }
+            if(!self.myMove && doc.exists){
+
                 var move = doc.data().move;
                 var tile = {
                     x: doc.data().nx,
@@ -60,19 +66,26 @@ Two048.prototype.listenForMoves = function(){
                         break;
                 }
             }
-            if(doc.data().lastTurnBy != self.myIp)
+            if(doc.exists && doc.data().lastTurnBy != self.myIp)
                 self.myTurn = true;
-            else
-                self.myTurn = false;
+            else {
+                if(self.myIp == self.id.substr(0, self.id.indexOf("-")))
+                    self.myTurn = true;
+                else
+                    self.myTurn = false;
+            }
             self.myMove = true;
         });
 };
 
 Two048.prototype.toFirebase = function (direction, newTile) {
+    console.log("doing..")
     if (this.id == "" || this.myIp == "")
         return;
     this.bgTask = true;
     var self = this;
+
+    console.log("doing....")
 
     var moveRef = self.db.collection('moves').doc(self.id);
     var gameRef = this.db.collection('games').doc(self.id);
@@ -93,13 +106,16 @@ Two048.prototype.toFirebase = function (direction, newTile) {
         lastTurnBy: self.myIp
     });
 
-    batch.update(userRef, {
+    batch.set(userRef, {
         timestamp: Date.now()
+    }, {
+        merge: true
     });
 
     batch.commit().then(function () {
         self.myTurn = false;
         self.resume();
+        console.log("done..")
     });
 };
 
@@ -257,10 +273,13 @@ Two048.prototype.animateTiles = function (changedTiles, direction, _tile) {
         if (changedTiles.length > 0 && !_tile){
             var newTile = self.addTile();
             self.toFirebase(direction, newTile);
+            console.log(",,,")
         }
         else if(_tile){
             self.tiles[_tile.x][_tile.y] = new Tile(self.tileSize, _tile.x, _tile.y, self.offset, _tile.value);
         }
+
+
 
         self.setHasMoved(false);
         self.draw();
