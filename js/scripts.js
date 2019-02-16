@@ -129,6 +129,7 @@ function startGame() {
         console.log(ip)
         var href = document.location.href;
         var oppIp = href.substr(href.lastIndexOf("=") + 1);
+        console.log(oppIp)
         game.isReady = false;
         var gameRef = db.collection('games').doc(ip + "-" + oppIp);
 
@@ -146,13 +147,15 @@ function startGame() {
                                     game: JSON.stringify(game.tiles),
 									lastTurnBy: ""
                                 }).then(function () {
-                                    console.log("Game created..");
+                                    console.log("Game created..", ip + "-" + oppIp);
+                                    alert(ip + "-" + oppIp);
                                     _startGame(game.tiles, ip + "-" + oppIp, ip, true);
                                 }).catch(function (error) {
                                     console.error("Error adding document: ", error);
                                 });
                             } else {
-                                console.log("Game fetched..");
+                                console.log("Game fetched..", doc.id);
+                                alert(doc.id);
                                 _startGame(JSON.parse(doc.data().game), doc.id, ip, false);
                             }
                         })
@@ -160,7 +163,8 @@ function startGame() {
                             console.log('Error getting document', err);
                         });
                 } else {
-                    console.log("Game fetched..", doc.data().lastTurnBy != ip);
+                    console.log("Game fetched..", doc.id);
+                    alert(doc.id);
                     _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                 }
             })
@@ -174,6 +178,7 @@ function startGame() {
         game.setTiles(_game);
         game.draw();
         game.id = id;
+        console.log(id)
         game.isReady = true;
         game.myIp = ip;
         game.myTurn = myTurn;

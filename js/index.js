@@ -2,8 +2,8 @@ $(document).ready(function () {
 
     var ip = null;
 
-    $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function (data) {
-        ip = data["geobytesremoteip"];
+    $.getJSON('https://json.geoiplookup.io/api?callback=?', function (data) {
+        ip = data["ip"];
 
         var docData = {
             name: "",
