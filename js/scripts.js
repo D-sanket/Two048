@@ -154,7 +154,7 @@ function startGame() {
                                 });
                             } else {
                                 console.log("Game fetched..", doc.id);
-                                _startGame(JSON.parse(doc.data().game), doc.id, ip, false);
+                                _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                             }
                         })
                         .catch(err => {
