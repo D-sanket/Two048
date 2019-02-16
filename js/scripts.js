@@ -148,14 +148,12 @@ function startGame() {
 									lastTurnBy: ""
                                 }).then(function () {
                                     console.log("Game created..", ip + "-" + oppIp);
-                                    alert(ip + "-" + oppIp);
                                     _startGame(game.tiles, ip + "-" + oppIp, ip, true);
                                 }).catch(function (error) {
                                     console.error("Error adding document: ", error);
                                 });
                             } else {
                                 console.log("Game fetched..", doc.id);
-                                alert(doc.id);
                                 _startGame(JSON.parse(doc.data().game), doc.id, ip, false);
                             }
                         })
@@ -164,7 +162,6 @@ function startGame() {
                         });
                 } else {
                     console.log("Game fetched..", doc.id);
-                    alert(doc.id);
                     _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                 }
             })
@@ -182,7 +179,7 @@ function startGame() {
         game.isReady = true;
         game.myIp = ip;
         game.myTurn = myTurn;
-        console.log(game.myTurn);
+        alert(game.myTurn);
         game.listenForMoves();
     }
 }
