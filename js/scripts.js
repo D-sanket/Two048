@@ -83,7 +83,32 @@ mc.get('swipe').set({
 });
 
 // listen to events...
-mc.on("swipeup swipedown swipeleft swiperight", move);
+mc.on("swipeup swipedown swipeleft swiperight", function (e) {
+    if (!game.isReady)
+        return;
+
+    if(!game.myTurn)
+        return;
+
+    console.log(game.myTurn)
+
+    if (e.type == "swipeup") {
+        game.myMove = true;
+        game.moveUp();
+    }
+    else if (e.type == "swiperight") {
+        game.myMove = true;
+        game.moveRight();
+    }
+    else if (e.type == "swipedown") {
+        game.myMove = true;
+        game.moveDown();
+    }
+    else if (e.type == "swipeleft") {
+        game.myMove = true;
+        game.moveLeft();
+    }
+});
 
 window.onkeyup = move;
 
@@ -154,7 +179,7 @@ function startGame() {
                                 });
                             } else {
                                 console.log("Game fetched..", doc.id);
-                                _startGame(JSON.parse(doc.data().game), doc.id, ip, true);
+                                _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                             }
                         })
                         .catch(err => {
@@ -162,7 +187,7 @@ function startGame() {
                         });
                 } else {
                     console.log("Game fetched..", doc.id);
-                    _startGame(JSON.parse(doc.data().game), doc.id, ip, true);
+                    _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                 }
             })
             .catch(err => {
