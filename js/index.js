@@ -68,10 +68,16 @@ function showUsers(ip, users) {
     var html = "";
     for (var i = 0; i < users.length; i++) {
         if (users[i].ip != ip)
-            html += "<li class='user'>" + users[i].ip + " " + (users[i].name ? "(" + users[i].name + ")" : "(Anonymous)") + " <a href='./game.html?playWith=" + users[i].ip + "'>Play</a></li>";
+            html += "<li class='user'>"+ users[i].ip +" " + (users[i].name ? "(" + users[i].name + ")" : "(Anonymous)") + " " +
+                "                        <a href='./game.html?playWith=" + users[i].ip + "' class='playBtn'>\n" +
+                "                            <span>\n" +
+                "                                <i class='mdi mdi-play' style='color: #263238; transform: scale(1.2)'></i>\n" +
+                "                            </span>\n" +
+                "                        </a>\n" +
+                "                    </li>"
     }
 
-    html = "<ul>" + html + "</ul>";
+    //html = "<ul>" + html + "</ul>";
 
     $("#playerDiv").html(html);
 }
