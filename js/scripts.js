@@ -151,6 +151,7 @@ startGame();
 function startGame() {
     $.getJSON('https://json.geoiplookup.io/api?callback=?', function (data) {
         var ip = data["ip"];
+        alert(ip)
         console.log(ip)
         var href = document.location.href;
         var oppIp = href.substr(href.lastIndexOf("=") + 1);
