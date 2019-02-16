@@ -188,6 +188,7 @@ function startGame() {
                         });
                 } else {
                     console.log("Game fetched..", doc.id);
+                    alert(doc.data().lastTurnBy +", "+ ip)
                     _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                 }
             })
