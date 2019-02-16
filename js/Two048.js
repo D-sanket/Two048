@@ -10,6 +10,7 @@ function Two048(canvas, n, db) {
     this.tiles = [];
     this.db = db;
     this.id = "";
+    this.myIp = "";
     this.bgTask = false;
     for (var i = 0; i < n; i++) {
         var temp = [];
@@ -27,15 +28,14 @@ function Two048(canvas, n, db) {
     this.draw();
 
     this.drawBlankTileAt(0, 0);
-    this.myMove = true;
+    this.myTurn = false;
 }
 
 Two048.prototype.listenForMoves = function(){
-    console.log("Listening..");
     if (this.id == "")
         return;
     var self = this;
-    console.log("..Listening..");
+
     db.collection("moves").doc(this.id)
         .onSnapshot(function(doc) {
             if(!self.myMove){
@@ -60,42 +60,47 @@ Two048.prototype.listenForMoves = function(){
                         break;
                 }
             }
-            self.myMove = false;
+            if(doc.data().lastTurnBy != self.myIp)
+                self.myTurn = true;
+            else
+                self.myTurn = false;
+            self.myMove = true;
         });
 };
 
 Two048.prototype.toFirebase = function (direction, newTile) {
-    console.log("Moving..", direction);
-    if (this.id == "")
+    if (this.id == "" || this.myIp == "")
         return;
     this.bgTask = true;
-    console.log("...");
     var self = this;
-    var gameRef = this.db.collection('games').doc(self.id);
 
-    gameRef.get()
-        .then(doc => {
-            var moveRef = self.db.collection('moves').doc(self.id);
-            moveRef.set({
-                move: direction,
-                nx: newTile.x,
-                ny: newTile.y,
-                nval: newTile.value
-            }).then(() => {
-                console.log('Moved..');
-                self.bgTask = false;
-                self.resume();
-            })
-            .catch(err => {
-                self.bgTask = false;
-                self.resume();
-            })
-        })
-        .catch(err => {
-            console.error('Error getting document', err);
-            self.bgTask = false;
-            self.resume();
-        });
+    var moveRef = self.db.collection('moves').doc(self.id);
+    var gameRef = this.db.collection('games').doc(self.id);
+    var userRef = this.db.collection('users').doc(self.myIp);
+
+
+    var batch = db.batch();
+    batch.set(moveRef, {
+        move: direction,
+        nx: newTile.x,
+        ny: newTile.y,
+        nval: newTile.value,
+        lastTurnBy: self.myIp
+    });
+
+    batch.update(gameRef, {
+        game: JSON.stringify(self.tiles),
+        lastTurnBy: self.myIp
+    });
+
+    batch.update(userRef, {
+        timestamp: Date.now()
+    });
+
+    batch.commit().then(function () {
+        self.myTurn = false;
+        self.resume();
+    });
 };
 
 Two048.prototype.pause = function () {

@@ -83,48 +83,35 @@ mc.get('swipe').set({
 });
 
 // listen to events...
-mc.on("swipeup swipedown swipeleft swiperight", function (ev) {
-    if (!game.isReady)
-        return;
-    switch (ev.type) {
-        case "swipeup":
-            game.myMove = true;
-            game.moveUp();
-            break;
-        case "swipedown":
-            game.myMove = true;
-            game.moveDown();
-            break;
-        case "swipeleft":
-            game.myMove = true;
-            game.moveLeft();
-            break;
-        case "swiperight":
-            game.myMove = true;
-            game.moveRight();
-            break;
-    }
-});
+mc.on("swipeup swipedown swipeleft swiperight", move);
 
-window.onkeyup = function (e) {
-    if (!game.isReady)
-        return;
-    if (e.key == "ArrowUp") {
-        game.myMove = true;
-        game.moveUp();
-    }
-    else if (e.key == "ArrowRight") {
-        game.myMove = true;
-        game.moveRight();
-    }
-    else if (e.key == "ArrowDown") {
-        game.myMove = true;
-        game.moveDown();
-    }
-    else if (e.key == "ArrowLeft") {
-        game.myMove = true;
-        game.moveLeft();
-    }
+window.onkeyup = move;
+
+function move(e) {
+	if (!game.isReady)
+		return;
+
+	console.log(game.myTurn)
+
+	if(!game.myTurn)
+		return;
+
+	if (e.key == "ArrowUp") {
+		game.myMove = true;
+		game.moveUp();
+	}
+	else if (e.key == "ArrowRight") {
+		game.myMove = true;
+		game.moveRight();
+	}
+	else if (e.key == "ArrowDown") {
+		game.myMove = true;
+		game.moveDown();
+	}
+	else if (e.key == "ArrowLeft") {
+		game.myMove = true;
+		game.moveLeft();
+	}
 };
 
 $(document).ready(function () {
@@ -155,24 +142,25 @@ function startGame() {
                                 gameRef.set({
                                     playerOne: ip,
                                     playerTwo: oppIp,
-                                    game: JSON.stringify(game.tiles)
+                                    game: JSON.stringify(game.tiles),
+									lastTurnBy: ip
                                 }).then(function () {
                                     console.log("Game created..");
-                                    _startGame(game.tiles, ip + "-" + oppIp);
+                                    _startGame(game.tiles, ip + "-" + oppIp, ip, true);
                                 }).catch(function (error) {
                                     console.error("Error adding document: ", error);
                                 });
                             } else {
                                 console.log("Game fetched..");
-                                _startGame(JSON.parse(doc.data().game), doc.id);
+                                _startGame(JSON.parse(doc.data().game), doc.id, ip, false);
                             }
                         })
                         .catch(err => {
                             console.log('Error getting document', err);
                         });
                 } else {
-                    console.log("Game fetched..");
-                    _startGame(JSON.parse(doc.data().game), doc.id);
+                    console.log("Game fetched..", doc.data().lastTurnBy != ip);
+                    _startGame(JSON.parse(doc.data().game), doc.id, ip, doc.data().lastTurnBy != ip);
                 }
             })
             .catch(err => {
@@ -180,13 +168,14 @@ function startGame() {
             });
     });
 
-    function _startGame(_game, id) {
+    function _startGame(_game, id, ip, myTurn) {
         game.tiles = [];
         game.setTiles(_game);
         game.draw();
         game.id = id;
         game.isReady = true;
+        game.myIp = ip;
+        game.myTurn = myTurn;
         game.listenForMoves();
-        alert("Ready!");
     }
 }
